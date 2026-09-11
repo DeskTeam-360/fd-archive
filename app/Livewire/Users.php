@@ -4,8 +4,11 @@ namespace App\Livewire;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
+
+#[Layout('layouts.app', ['title' => 'Users'])]
 
 class Users extends Component
 {
@@ -78,6 +81,6 @@ class Users extends Component
     {
         return view('livewire.users', [
             'users' => User::orderBy('name')->get(),
-        ])->layout('layouts.archive', ['title' => 'Users']);
+        ]);
     }
 }

@@ -1,3 +1,3 @@
-<x-layouts.archive title="Contact — FD Archive">
+<x-layouts::app :title="__('Contact — FD Archive')">
     <livewire:archive.archive-contact :contact-id="(int) $id" />
-</x-layouts.archive>
+</x-layouts::app>

@@ -1,3 +1,3 @@
-<x-layouts.archive title="Ticket — FD Archive">
+<x-layouts::app :title="__('Ticket — FD Archive')">
     <livewire:archive.archive-ticket :ticket-id="(int) $id" />
-</x-layouts.archive>
+</x-layouts::app>

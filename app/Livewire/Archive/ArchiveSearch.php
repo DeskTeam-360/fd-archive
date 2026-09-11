@@ -35,18 +35,10 @@ class ArchiveSearch extends Component
     protected array $companyOptions = [];
     protected array $typeOptions    = [];
 
-    public function updatingSearch(): void    { $this->resetPage(); }
-    public function updatingTab(): void       { $this->resetPage(); $this->resetFilters(); }
-    public function updatingFilterAgents(): void    { $this->resetPage(); }
-    public function updatingFilterStatuses(): void  { $this->resetPage(); }
-    public function updatingFilterPriorities(): void { $this->resetPage(); }
-    public function updatingFilterTypes(): void     { $this->resetPage(); }
-    public function updatingFilterSources(): void   { $this->resetPage(); }
-    public function updatingFilterCompanies(): void { $this->resetPage(); }
-    public function updatingFilterContacts(): void  { $this->resetPage(); }
-    public function updatingFilterTags(): void      { $this->resetPage(); }
-    public function updatingFilterCreatedFrom(): void { $this->resetPage(); }
-    public function updatingFilterCreatedTo(): void   { $this->resetPage(); }
+    public function updatingSearch(): void { $this->resetPage(); }
+    public function updatingTab(): void    { $this->resetPage(); $this->resetFilters(); }
+
+    public function applyFilters(): void { $this->resetPage(); }
 
     public function mount(): void
     {

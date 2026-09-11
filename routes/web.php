@@ -8,7 +8,10 @@ Route::redirect('/', '/login')->name('home');
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('/import', 'pages.freshdesk-import')->name('freshdesk-import');
 
-    Route::view('/archive', 'pages.archive')->name('archive');
+    Route::redirect('/archive', '/archive/tickets')->name('archive');
+    Route::get('/archive/tickets', [\App\Http\Controllers\Archive\TicketsController::class, 'index'])->name('archive.tickets');
+    Route::livewire('/archive/contacts', \App\Livewire\Archive\ArchiveContacts::class)->name('archive.contacts');
+    Route::livewire('/archive/companies', \App\Livewire\Archive\ArchiveCompanies::class)->name('archive.companies');
     Route::view('/archive/companies/{id}', 'pages.archive-company')->name('archive.company');
     Route::view('/archive/contacts/{id}', 'pages.archive-contact')->name('archive.contact');
     Route::view('/archive/tickets/{id}', 'pages.archive-ticket')->name('archive.ticket');

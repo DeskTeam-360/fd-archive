@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Livewire\Archive;
+
+use App\Models\FdAgent;
+use App\Models\FdCompany;
+use App\Models\FdTicket;
+use Illuminate\Support\Facades\Cache;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
+use Livewire\WithPagination;
+
+#[Layout('layouts.app', ['title' => 'Tickets — Archive'])]
+class ArchiveTickets extends Component
+{
+    use WithPagination;
+
+    public string $search = '';
+    public array  $filterAgents    = [];
+    public array  $filterStatuses  = [];
+    public array  $filterPriorities = [];
+    public array  $filterTypes     = [];
+    public array  $filterSources   = [];
+    public array  $filterCompanies = [];
+    public array  $filterTags      = [];
+    public string $filterCreatedFrom = '';
+    public string $filterCreatedTo   = '';
+
+    public function applyFilters(): void { $this->resetPage(); }
+
+    public function removeFilter(string $prop, mixed $value): void
+    {
+        if (property_exists($this, $prop) && is_array($this->$prop)) {
+            $this->$prop = array_values(array_filter($this->$prop, fn($v) => $v != $value));
+            $this->dispatch('ts-sync', prop: $prop, values: $this->$prop);
+        }
+    }
+
+    public function resetFilters(): void
+    {
+        $this->search = '';
+        $this->filterAgents = $this->filterStatuses = $this->filterPriorities = [];
+        $this->filterTypes  = $this->filterSources  = $this->filterCompanies  = $this->filterTags = [];
+        $this->filterCreatedFrom = $this->filterCreatedTo = '';
+        $this->resetPage();
+        $this->dispatch('ts-clear-all');
+    }
+
+    public function activeFilterCount(): int
+    {
+        return count($this->filterAgents) + count($this->filterStatuses)
+            + count($this->filterPriorities) + count($this->filterTypes)
+            + count($this->filterSources) + count($this->filterCompanies)
+            + count($this->filterTags)
+            + ($this->filterCreatedFrom ? 1 : 0) + ($this->filterCreatedTo ? 1 : 0);
+    }
+
+    public function render()
+    {
+        $q = trim($this->search);
+
+        $tickets = FdTicket::query()
+            ->when($q, fn ($x) => $x->where(fn ($x) => $x
+                ->where('subject', 'like', "%{$q}%")
+                ->orWhere('description_text', 'like', "%{$q}%")))
+            ->when($this->filterAgents,     fn ($x) => $x->whereIn('fd_responder_id', $this->filterAgents))
+            ->when($this->filterStatuses,   fn ($x) => $x->whereIn('status', $this->filterStatuses))
+            ->when($this->filterPriorities, fn ($x) => $x->whereIn('priority', $this->filterPriorities))
+            ->when($this->filterTypes,      fn ($x) => $x->whereIn('type', $this->filterTypes))
+            ->when($this->filterSources,    fn ($x) => $x->whereIn('source', $this->filterSources))
+            ->when($this->filterCompanies,  fn ($x) => $x->whereIn('fd_company_id', $this->filterCompanies))
+            ->when($this->filterTags, fn ($x) => $x->where(fn ($q) => collect($this->filterTags)
+                ->each(fn ($tag) => $q->orWhereJsonContains('tags', $tag))))
+            ->when($this->filterCreatedFrom, fn ($x) => $x->where('fd_created_at', '>=', $this->filterCreatedFrom))
+            ->when($this->filterCreatedTo,   fn ($x) => $x->where('fd_created_at', '<=', $this->filterCreatedTo.' 23:59:59'))
+            ->with('company:fd_id,name')
+            ->withCount('comments')
+            ->orderByDesc('fd_created_at')
+            ->paginate(25);
+
+        $allTags = Cache::remember('fd_all_tags', 3600, fn () =>
+            FdTicket::whereNotNull('tags')->where('tags', '!=', '[]')
+                ->pluck('tags')->flatten()->filter()->unique()->sort()->values()->toArray()
+        );
+
+        return view('livewire.archive.tickets', [
+            'tickets'       => $tickets,
+            'agents'        => FdAgent::orderBy('name')->get(['fd_id', 'name']),
+            'companiesList' => FdCompany::orderBy('name')->get(['fd_id', 'name']),
+            'typeOptions'   => FdTicket::whereNotNull('type')->distinct()->orderBy('type')->pluck('type'),
+            'statusMap'     => FdTicket::STATUS_MAP,
+            'priorityMap'   => FdTicket::PRIORITY_MAP,
+            'sourceMap'     => [1 => 'Email', 2 => 'Portal', 3 => 'Phone', 7 => 'Chat'],
+            'allTags'       => $allTags,
+            'activeFilters' => $this->activeFilterCount(),
+        ]);
+    }
+}

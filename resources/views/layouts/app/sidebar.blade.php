@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
+        @stack('styles')
     </head>
     <body class="min-h-screen bg-white dark:bg-zinc-800">
         <flux:sidebar sticky collapsible="mobile" class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
@@ -18,19 +19,27 @@
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
+
+                <flux:sidebar.group :heading="__('FD Archive')" class="grid">
+                    <flux:sidebar.item icon="ticket" :href="route('archive.tickets')" :current="request()->routeIs('archive.tickets')">
+                        {{ __('Tickets') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="user-circle" :href="route('archive.contacts')" :current="request()->routeIs('archive.contacts')" wire:navigate>
+                        {{ __('Contacts') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="building-office" :href="route('archive.companies')" :current="request()->routeIs('archive.companies')" wire:navigate>
+                        {{ __('Companies') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="arrow-down-tray" :href="route('freshdesk-import')" :current="request()->routeIs('freshdesk-import')" wire:navigate>
+                        {{ __('Import') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="users" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>
+                        {{ __('Users') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
             </flux:sidebar.nav>
 
             <flux:spacer />
-
-            <flux:sidebar.nav>
-                <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('Repository') }}
-                </flux:sidebar.item>
-
-                <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Documentation') }}
-                </flux:sidebar.item>
-            </flux:sidebar.nav>
 
             <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
         </flux:sidebar>
@@ -101,5 +110,7 @@
         @endpersist
 
         @fluxScripts
+        @stack('scripts')
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.3.1/js/tom-select.complete.min.js"></script>
     </body>
 </html>

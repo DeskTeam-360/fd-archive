@@ -1,3 +1,3 @@
-<x-layouts.archive title="Freshdesk Import">
+<x-layouts::app :title="__('Freshdesk Import')">
     <livewire:freshdesk-import-dashboard />
-</x-layouts.archive>
+</x-layouts::app>
