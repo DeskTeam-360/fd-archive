@@ -105,7 +105,7 @@
     @if($ticket->description)
     <div class="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 p-6">
         <h2 class="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-4">Description</h2>
-        <div class="prose prose-sm dark:prose-invert max-w-none text-sm overflow-x-auto">
+        <div class="prose prose-sm dark:prose-invert max-w-none text-sm overflow-x-auto fd-content">
             {!! $ticket->description !!}
         </div>
     </div>
@@ -132,7 +132,7 @@
                     <span class="text-xs text-neutral-400 whitespace-nowrap">{{ $comment->fd_created_at?->format('Y-m-d H:i') }}</span>
                 </div>
 
-                <div class="prose prose-sm dark:prose-invert max-w-none text-sm overflow-x-auto">
+                <div class="prose prose-sm dark:prose-invert max-w-none text-sm overflow-x-auto fd-content">
                     {!! $comment->body !!}
                 </div>
 

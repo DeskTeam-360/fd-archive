@@ -16,6 +16,10 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.3.1/css/tom-select.min.css" />
 <style>
+    .fd-content a { color: #2563eb !important; text-decoration: underline; }
+    .fd-content a:hover { color: #1d4ed8 !important; }
+</style>
+<style>
     .ts-wrapper { min-height: 32px; }
     .ts-control { border-radius: 0.5rem !important; border-color: rgb(212 212 212) !important; background: white !important; font-size: 0.8rem !important; padding: 4px 8px !important; min-height: 32px; }
     .ts-dropdown { font-size: 0.8rem !important; border-radius: 0.5rem !important; }
