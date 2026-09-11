@@ -161,7 +161,7 @@ return [
     */
 
     'features' => [
-        // Features::registration(), // registration disabled
+        Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([
