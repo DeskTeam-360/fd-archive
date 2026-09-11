@@ -11,7 +11,7 @@
                 <flux:sidebar.collapse class="lg:hidden" />
             </flux:sidebar.header>
 
-            <livewire:team-switcher />
+            {{-- <livewire:team-switcher /> --}}
 
             <flux:sidebar.nav>
                 <flux:sidebar.group :heading="__('Platform')" class="grid">
@@ -101,7 +101,7 @@
 
         {{ $slot }}
 
-        <livewire:create-team-modal />
+        {{-- <livewire:create-team-modal /> --}}
 
         @persist('toast')
             <flux:toast.group>
