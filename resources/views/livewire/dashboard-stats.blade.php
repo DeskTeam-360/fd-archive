@@ -37,13 +37,13 @@
             <div>
                 <div class="font-semibold text-neutral-800 dark:text-neutral-100">Quick Sync</div>
                 <div class="text-xs text-neutral-400 mt-0.5">
-                    Akan fetch since <span class="font-mono font-medium text-neutral-600 dark:text-neutral-300">{{ $sincePrev }}</span>
-                    (last sync − 1 hari) sampai sekarang
+                    Will fetch since <span class="font-mono font-medium text-neutral-600 dark:text-neutral-300">{{ $sincePrev }}</span>
+                    (last sync − 1 day) until now
                 </div>
             </div>
             <button wire:click="quickSync" wire:loading.attr="disabled"
                 class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-                <span wire:loading.remove wire:target="quickSync">🔄 Sync Sekarang</span>
+                <span wire:loading.remove wire:target="quickSync">🔄 Sync Now</span>
                 <span wire:loading wire:target="quickSync">⏳ Syncing...</span>
             </button>
         </div>
