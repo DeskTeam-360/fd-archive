@@ -6,7 +6,6 @@ use App\Models\FdAttachment;
 use App\Models\FdTicket;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class FreshdeskImportAttachments extends Command
@@ -113,7 +112,7 @@ class FreshdeskImportAttachments extends Command
     private function storeAttachment(array $att, int $ticketId, ?int $commentId): void
     {
         $existing = FdAttachment::find($att['id']);
-        if ($existing?->downloaded_at && Storage::disk(self::DISK)->exists($existing->path)) {
+        if ($existing?->downloaded_at && is_file($this->absolutePath($existing->path))) {
             $this->skipped++;
             return;
         }
@@ -160,8 +159,8 @@ class FreshdeskImportAttachments extends Command
             try {
                 $res = Http::withHeaders($headers)->timeout(120)->sink($tmp)->get($url);
                 if ($res->successful()) {
-                    // Bypass Flysystem put(): its MIME detection needs ext-fileinfo, which the server CLI lacks.
-                    $target = Storage::disk(self::DISK)->path($path);
+                    // Plain filesystem only: building a Storage disk instantiates finfo, and the server CLI lacks ext-fileinfo.
+                    $target = $this->absolutePath($path);
                     if (! is_dir(dirname($target))) {
                         mkdir(dirname($target), 0755, true);
                     }
@@ -183,6 +182,11 @@ class FreshdeskImportAttachments extends Command
 
         @unlink($tmp);
         return $lastError;
+    }
+
+    private function absolutePath(string $path): string
+    {
+        return storage_path('app/private/' . $path);
     }
 
     private function safeName(string $name): string
