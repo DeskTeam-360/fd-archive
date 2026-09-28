@@ -160,12 +160,15 @@ class FreshdeskImportAttachments extends Command
             try {
                 $res = Http::withHeaders($headers)->timeout(120)->sink($tmp)->get($url);
                 if ($res->successful()) {
-                    $stream = fopen($tmp, 'r');
-                    Storage::disk(self::DISK)->put($path, $stream);
-                    if (is_resource($stream)) {
-                        fclose($stream);
+                    // Bypass Flysystem put(): its MIME detection needs ext-fileinfo, which the server CLI lacks.
+                    $target = Storage::disk(self::DISK)->path($path);
+                    if (! is_dir(dirname($target))) {
+                        mkdir(dirname($target), 0755, true);
                     }
-                    @unlink($tmp);
+                    if (! @rename($tmp, $target)) {
+                        copy($tmp, $target);
+                        @unlink($tmp);
+                    }
                     return null;
                 }
                 $lastError = "HTTP {$res->status()}";
