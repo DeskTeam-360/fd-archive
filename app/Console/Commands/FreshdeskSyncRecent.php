@@ -5,14 +5,15 @@ namespace App\Console\Commands;
 use App\Models\FdComment;
 use App\Models\FdTicket;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 
 class FreshdeskSyncRecent extends Command
 {
     protected $signature = 'freshdesk:sync-recent
                             {--days=7 : Berapa hari kebelakang (default: 7)}
-                            {--with-comments : Import comments sekalian}
-                            {--no-comments : Skip comments (default kalau tidak pakai --with-comments)}';
+                            {--with-comments : (default) Import comments sekalian — dipertahankan untuk kompatibilitas}
+                            {--no-comments : Skip comments}';
 
     protected $description = 'Sync tickets yang diupdate dalam N hari terakhir beserta comments-nya';
 
@@ -40,7 +41,7 @@ class FreshdeskSyncRecent extends Command
 
         $days        = max(1, (int) $this->option('days'));
         $since       = now()->utc()->subDays($days)->format('Y-m-d\TH:i:s\Z');
-        $withComments = $this->option('with-comments');
+        $withComments = ! $this->option('no-comments');
 
         $this->info("Syncing tickets updated since: {$since} ({$days} hari terakhir)");
 
@@ -86,12 +87,15 @@ class FreshdeskSyncRecent extends Command
 
                     if ($withComments) {
                         $ticket = FdTicket::find($t['id']);
-                        if (! $ticket?->comments_imported_at) {
+                        // Re-fetch when FD changed after our last comment import, otherwise new replies are never saved.
+                        $stale = ! $ticket?->comments_imported_at
+                            || Carbon::parse($t['updated_at'])->gt($ticket->comments_imported_at);
+                        if ($stale) {
                             $count = $this->importComments($t['id']);
                             $totalComments += $count;
                             $ticket?->update(['comments_imported_at' => now()]);
                         } else {
-                            $this->line("  skip comments (sudah diimport)");
+                            $this->line("  skip comments (tidak ada perubahan sejak import terakhir)");
                         }
                     }
                 } catch (\Throwable $e) {
