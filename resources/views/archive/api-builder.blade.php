@@ -1,111 +1,141 @@
 <x-layouts::app :title="__('API Builder — FD Archive')">
-@php
-    $label = 'text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400';
-    $input = 'w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100';
-    $btn   = 'rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-700';
-@endphp
-<div class="flex flex-col gap-6 p-6 lg:flex-row">
+<style>
+    .apib { --bd:#d4d4d4; --bg:#fff; --fg:#171717; --muted:#737373; --panel:#f5f5f5; --accent:#9333ea;
+        display:flex; gap:24px; padding:24px; align-items:flex-start; color:var(--fg); }
+    .dark .apib { --bd:#404040; --bg:#262626; --fg:#f5f5f5; --muted:#a3a3a3; --panel:#262626; }
+    .apib-form { width:300px; flex:0 0 300px; display:flex; flex-direction:column; gap:12px; }
+    .apib-out { flex:1 1 0; min-width:0; display:flex; flex-direction:column; gap:16px; }
+    .apib-row { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .apib-field { display:flex; flex-direction:column; gap:4px; min-width:0; }
+    .apib-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .apib-label { font-size:11px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); }
+    .apib-input { width:100%; box-sizing:border-box; border:1px solid var(--bd); background:var(--bg); color:var(--fg);
+        border-radius:8px; padding:6px 10px; font-size:13px; }
+    .apib-input:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+    .apib-btn { border:1px solid var(--bd); background:transparent; color:var(--fg); border-radius:8px; padding:5px 12px;
+        font-size:12px; font-weight:500; cursor:pointer; text-decoration:none; white-space:nowrap; }
+    .apib-btn:hover { background:var(--panel); }
+    .apib-run { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; padding:5px 18px; }
+    .apib-run:hover { background:#7e22ce; }
+    .apib-reset { background:none; border:0; color:#ef4444; font-size:12px; cursor:pointer; }
+    .apib-title { font-size:18px; font-weight:600; margin:0; }
+    .apib-sub { font-size:13px; color:var(--muted); margin:2px 0 0; }
+    .apib-hint { font-size:12px; color:var(--muted); margin:0; }
+    .apib-pre { margin:0; padding:12px; border-radius:8px; background:var(--panel); border:1px solid var(--bd); color:var(--fg);
+        font-size:12px; line-height:1.5; white-space:pre-wrap; word-break:break-all; overflow-x:auto; }
+    .apib-json { background:#171717; color:#f5f5f5; white-space:pre; word-break:normal; overflow:auto; max-height:60vh; }
+    .apib-warn { border:1px solid #f59e0b; background:rgba(245,158,11,.12); border-radius:8px; padding:10px 14px; font-size:13px; }
+    .apib-check { display:flex; align-items:center; gap:8px; font-size:13px; }
+    .apib .ts-wrapper { width:100%; }
+    .apib .ts-control, .apib .ts-control input { background:var(--bg) !important; color:var(--fg) !important; }
+    .apib .ts-control { border:1px solid var(--bd) !important; border-radius:8px; min-height:32px; padding:4px 8px; font-size:13px; box-shadow:none; }
+    .apib .ts-dropdown { background:var(--bg); color:var(--fg); border:1px solid var(--bd); font-size:13px; }
+    .apib .ts-dropdown .option:hover, .apib .ts-dropdown .active { background:var(--panel); color:var(--fg); }
+    .apib .ts-control .item { background:var(--panel) !important; color:var(--fg) !important; border:1px solid var(--bd) !important; border-radius:6px; }
+    @media (max-width: 900px) { .apib { flex-direction:column; } .apib-form { width:100%; flex-basis:auto; } }
+</style>
+<div class="apib">
 
     {{-- FILTERS --}}
-    <form id="builder-form" class="w-full shrink-0 space-y-3 lg:w-72" onsubmit="return false">
-        <div class="flex items-center justify-between">
-            <span class="text-sm font-semibold">Query</span>
-            <button type="button" id="btn-reset" class="text-xs text-red-500 hover:text-red-700">Reset</button>
+    <form id="builder-form" class="apib-form" onsubmit="return false">
+        <div class="apib-row">
+            <span style="font-size:14px;font-weight:600">Query</span>
+            <button type="button" id="btn-reset" class="apib-reset">Reset</button>
         </div>
 
-        <div class="space-y-1">
-            <div class="{{ $label }}">Single ticket ID</div>
-            <input name="ticket_id" type="number" min="1" placeholder="Leave empty to search" class="{{ $input }}" />
+        <div class="apib-field">
+            <div class="apib-label">Single ticket ID</div>
+            <input name="ticket_id" type="number" min="1" placeholder="Leave empty to search" class="apib-input" />
         </div>
 
-        <div id="list-filters" class="space-y-3">
-            <div class="space-y-1">
-                <div class="{{ $label }}">Search</div>
-                <input name="search" type="text" placeholder="Subject, description, comments" class="{{ $input }}" />
+        <div id="list-filters" style="display:flex;flex-direction:column;gap:12px">
+            <div class="apib-field">
+                <div class="apib-label">Search</div>
+                <input name="search" type="text" placeholder="Subject, description, comments" class="apib-input" />
             </div>
 
-            <div class="space-y-1">
-                <div class="{{ $label }}">Ticket IDs</div>
-                <input name="ids" type="text" placeholder="110301, 110664" class="{{ $input }}" />
+            <div class="apib-field">
+                <div class="apib-label">Ticket IDs</div>
+                <input name="ids" type="text" placeholder="110301, 110664" class="apib-input" />
             </div>
 
-            <div class="space-y-1">
-                <div class="{{ $label }}">Status</div>
-                <select name="statuses" multiple class="ts w-full">
+            <div class="apib-field">
+                <div class="apib-label">Status</div>
+                <select name="statuses" multiple class="ts">
                     @foreach($statusMap as $val => $text)<option value="{{ $val }}">{{ $text }}</option>@endforeach
                 </select>
             </div>
 
-            <div class="space-y-1">
-                <div class="{{ $label }}">Priority</div>
-                <select name="priorities" multiple class="ts w-full">
+            <div class="apib-field">
+                <div class="apib-label">Priority</div>
+                <select name="priorities" multiple class="ts">
                     @foreach($priorityMap as $val => $text)<option value="{{ $val }}">{{ $text }}</option>@endforeach
                 </select>
             </div>
 
-            <div class="space-y-1">
-                <div class="{{ $label }}">Type</div>
-                <select name="types" multiple class="ts w-full">
+            <div class="apib-field">
+                <div class="apib-label">Type</div>
+                <select name="types" multiple class="ts">
                     @foreach($typeOptions as $type)<option value="{{ $type }}">{{ $type }}</option>@endforeach
                 </select>
             </div>
 
-            <div class="space-y-1">
-                <div class="{{ $label }}">Source</div>
-                <select name="sources" multiple class="ts w-full">
+            <div class="apib-field">
+                <div class="apib-label">Source</div>
+                <select name="sources" multiple class="ts">
                     @foreach($sourceMap as $val => $text)<option value="{{ $val }}">{{ $text }}</option>@endforeach
                 </select>
             </div>
 
-            <div class="space-y-1">
-                <div class="{{ $label }}">Company</div>
-                <select name="companies" multiple class="ts w-full">
+            <div class="apib-field">
+                <div class="apib-label">Company</div>
+                <select name="companies" multiple class="ts">
                     @foreach($companiesList as $c)<option value="{{ $c->fd_id }}">{{ $c->name }}</option>@endforeach
                 </select>
             </div>
 
-            <div class="space-y-1">
-                <div class="{{ $label }}">Agent</div>
-                <select name="agents" multiple class="ts w-full">
+            <div class="apib-field">
+                <div class="apib-label">Agent</div>
+                <select name="agents" multiple class="ts">
                     @foreach($agents as $a)<option value="{{ $a->fd_id }}">{{ $a->name }}</option>@endforeach
                 </select>
             </div>
 
-            <div class="space-y-1">
-                <div class="{{ $label }}">Requester IDs</div>
-                <input name="requesters" type="text" placeholder="Freshdesk contact IDs" class="{{ $input }}" />
+            <div class="apib-field">
+                <div class="apib-label">Requester IDs</div>
+                <input name="requesters" type="text" placeholder="Freshdesk contact IDs" class="apib-input" />
             </div>
 
-            <div class="space-y-1">
-                <div class="{{ $label }}">Tags</div>
-                <select name="tags" multiple class="ts w-full">
+            <div class="apib-field">
+                <div class="apib-label">Tags</div>
+                <select name="tags" multiple class="ts">
                     @foreach($allTags as $tag)<option value="{{ $tag }}">{{ $tag }}</option>@endforeach
                 </select>
             </div>
 
-            <div class="grid grid-cols-2 gap-2">
-                <div class="space-y-1">
-                    <div class="{{ $label }}">Created from</div>
-                    <input name="created_from" type="date" class="{{ $input }}" />
+            <div class="apib-grid">
+                <div class="apib-field">
+                    <div class="apib-label">Created from</div>
+                    <input name="created_from" type="date" class="apib-input" />
                 </div>
-                <div class="space-y-1">
-                    <div class="{{ $label }}">Created to</div>
-                    <input name="created_to" type="date" class="{{ $input }}" />
+                <div class="apib-field">
+                    <div class="apib-label">Created to</div>
+                    <input name="created_to" type="date" class="apib-input" />
                 </div>
-                <div class="space-y-1">
-                    <div class="{{ $label }}">Updated from</div>
-                    <input name="updated_from" type="date" class="{{ $input }}" />
+                <div class="apib-field">
+                    <div class="apib-label">Updated from</div>
+                    <input name="updated_from" type="date" class="apib-input" />
                 </div>
-                <div class="space-y-1">
-                    <div class="{{ $label }}">Updated to</div>
-                    <input name="updated_to" type="date" class="{{ $input }}" />
+                <div class="apib-field">
+                    <div class="apib-label">Updated to</div>
+                    <input name="updated_to" type="date" class="apib-input" />
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-2">
-                <div class="space-y-1">
-                    <div class="{{ $label }}">Sort</div>
-                    <select name="sort" class="{{ $input }}">
+            <div class="apib-grid">
+                <div class="apib-field">
+                    <div class="apib-label">Sort</div>
+                    <select name="sort" class="apib-input">
                         <option value="">created_at</option>
                         <option value="updated_at">updated_at</option>
                         <option value="id">id</option>
@@ -113,75 +143,75 @@
                         <option value="priority">priority</option>
                     </select>
                 </div>
-                <div class="space-y-1">
-                    <div class="{{ $label }}">Order</div>
-                    <select name="order" class="{{ $input }}">
+                <div class="apib-field">
+                    <div class="apib-label">Order</div>
+                    <select name="order" class="apib-input">
                         <option value="">desc</option>
                         <option value="asc">asc</option>
                     </select>
                 </div>
-                <div class="space-y-1">
-                    <div class="{{ $label }}">Per page</div>
-                    <input name="per_page" type="number" min="1" max="100" placeholder="25" class="{{ $input }}" />
+                <div class="apib-field">
+                    <div class="apib-label">Per page</div>
+                    <input name="per_page" type="number" min="1" max="100" placeholder="25" class="apib-input" />
                 </div>
-                <div class="space-y-1">
-                    <div class="{{ $label }}">Page</div>
-                    <input name="page" type="number" min="1" placeholder="1" class="{{ $input }}" />
+                <div class="apib-field">
+                    <div class="apib-label">Page</div>
+                    <input name="page" type="number" min="1" placeholder="1" class="apib-input" />
                 </div>
             </div>
 
-            <label class="flex items-center gap-2 text-sm">
-                <input name="include" type="checkbox" value="comments" class="rounded border-neutral-300" />
+            <label class="apib-check">
+                <input name="include" type="checkbox" value="comments" />
                 Include comments &amp; attachments
             </label>
         </div>
     </form>
 
     {{-- OUTPUT --}}
-    <div class="min-w-0 flex-1 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-3">
+    <div class="apib-out">
+        <div class="apib-row">
             <div>
-                <h1 class="text-lg font-semibold">API Builder</h1>
-                <p class="text-sm text-neutral-500 dark:text-neutral-400">Build a request for the FD Archive API, preview the JSON, then copy it for a person or an AI agent.</p>
+                <h1 class="apib-title">API Builder</h1>
+                <p class="apib-sub">Build a request for the FD Archive API, preview the JSON, then copy it for a person or an AI agent.</p>
             </div>
-            <div class="flex gap-2">
-                <a href="{{ route('api-builder.docs') }}" target="_blank" class="{{ $btn }}">View docs (MD)</a>
-                <a href="{{ route('api-builder.docs', ['download' => 1]) }}" class="{{ $btn }}">Download docs</a>
+            <div style="display:flex;gap:8px">
+                <a href="{{ route('api-builder.docs') }}" target="_blank" class="apib-btn">View docs (MD)</a>
+                <a href="{{ route('api-builder.docs', ['download' => 1]) }}" class="apib-btn">Download docs</a>
             </div>
         </div>
 
         @unless($keyConfigured)
-            <div class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
+            <div class="apib-warn">
                 <strong>ARCHIVE_API_KEY</strong> is not set in <code>.env</code>, so the API answers 503 to everyone. The preview below still works because it uses your login.
             </div>
         @endunless
 
-        <div class="space-y-1">
-            <div class="flex items-center justify-between">
-                <div class="{{ $label }}">Request URL</div>
-                <button type="button" class="{{ $btn }}" data-copy="out-url">Copy</button>
+        <div class="apib-field">
+            <div class="apib-row">
+                <div class="apib-label">Request URL</div>
+                <button type="button" class="apib-btn" data-copy="out-url">Copy</button>
             </div>
-            <pre id="out-url" class="overflow-x-auto whitespace-pre-wrap break-all rounded-lg bg-neutral-100 p-3 text-xs dark:bg-neutral-800"></pre>
+            <pre id="out-url" class="apib-pre"></pre>
         </div>
 
-        <div class="space-y-1">
-            <div class="flex items-center justify-between">
-                <div class="{{ $label }}">cURL</div>
-                <button type="button" class="{{ $btn }}" data-copy="out-curl">Copy</button>
+        <div class="apib-field">
+            <div class="apib-row">
+                <div class="apib-label">cURL</div>
+                <button type="button" class="apib-btn" data-copy="out-curl">Copy</button>
             </div>
-            <pre id="out-curl" class="overflow-x-auto whitespace-pre-wrap break-all rounded-lg bg-neutral-100 p-3 text-xs dark:bg-neutral-800"></pre>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400">Send the key in the <code>X-API-Key</code> header. It is never shown on this page.</p>
+            <pre id="out-curl" class="apib-pre"></pre>
+            <p class="apib-hint">Send the key in the <code>X-API-Key</code> header. It is never shown on this page.</p>
         </div>
 
-        <div class="space-y-1">
-            <div class="flex items-center justify-between gap-2">
-                <div class="{{ $label }}">Response <span id="out-meta" class="ml-2 normal-case font-normal"></span></div>
-                <div class="flex gap-2">
-                    <button type="button" class="{{ $btn }}" data-copy="out-json">Copy JSON</button>
-                    <button type="button" id="btn-run" class="rounded-lg bg-purple-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-purple-700">Run</button>
+        <div class="apib-field">
+            <div class="apib-row">
+                <div class="apib-label">Response <span id="out-meta" style="margin-left:8px;text-transform:none;font-weight:400;letter-spacing:0"></span></div>
+                <div style="display:flex;gap:8px">
+                    <button type="button" class="apib-btn" data-copy="out-json">Copy JSON</button>
+                    <button type="button" id="btn-run" class="apib-btn apib-run">Run</button>
                 </div>
             </div>
-            <pre id="out-json" class="max-h-[60vh] overflow-auto rounded-lg bg-neutral-900 p-3 text-xs text-neutral-100">Press Run to preview the response.</pre>
+            <pre id="out-json" class="apib-pre apib-json">Press Run to preview the response.</pre>
         </div>
     </div>
 </div>
