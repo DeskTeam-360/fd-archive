@@ -15,6 +15,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('/archive/contacts/{id}', 'pages.archive-contact')->name('archive.contact');
     Route::view('/archive/tickets/{id}', 'pages.archive-ticket')->name('archive.ticket');
 
+    Route::get('/api-builder', [\App\Http\Controllers\Archive\ApiBuilderController::class, 'index'])->name('api-builder');
+    Route::get('/api-builder/preview', [\App\Http\Controllers\Archive\ApiBuilderController::class, 'preview'])->name('api-builder.preview');
+    Route::get('/api-builder/docs', [\App\Http\Controllers\Archive\ApiBuilderController::class, 'docs'])->name('api-builder.docs');
+
     Route::livewire('/users', \App\Livewire\Users::class)->name('users.index');
 });
 

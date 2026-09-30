@@ -28,6 +28,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'archive_api' => [
+        'key' => env('ARCHIVE_API_KEY'),
+    ],
+
     'freshdesk' => [
         'domain'  => env('FRESHDESK_DOMAIN'),
         'api_key' => env('FRESHDESK_API_KEY'),

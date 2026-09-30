@@ -33,6 +33,9 @@
                     <flux:sidebar.item icon="arrow-down-tray" :href="route('freshdesk-import')" :current="request()->routeIs('freshdesk-import')" wire:navigate>
                         {{ __('Import') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="code-bracket" :href="route('api-builder')" :current="request()->routeIs('api-builder')">
+                        {{ __('API Builder') }}
+                    </flux:sidebar.item>
                     <flux:sidebar.item icon="users" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>
                         {{ __('Users') }}
                     </flux:sidebar.item>
